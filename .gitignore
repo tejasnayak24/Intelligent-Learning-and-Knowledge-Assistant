@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Node
+node_modules/
+
+# Uploads
+backend/uploads/*
+
+# Vector DB
+backend/vectorstore/*
