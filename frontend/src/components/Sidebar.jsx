@@ -58,7 +58,7 @@ export default function Sidebar() {
             </div>
           </div>
           <Link to="/login" className="text-slate-400 hover:text-red-400 transition-colors" title="Sign out">
-            🚪
+            logout
           </Link>
         </div>
       </div>
