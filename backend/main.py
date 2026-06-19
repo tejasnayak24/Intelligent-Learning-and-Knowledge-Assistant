@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from routes.auth import router as auth_router
 from routes.upload import router as upload_router
 from database import db
+from routes.search import router as search_router
 
 app = FastAPI()
 
 app.include_router(auth_router)
 app.include_router(upload_router)
+app.include_router(search_router)
 
 @app.get("/")
 def root():
@@ -16,3 +18,11 @@ def root():
 def test_db():
     db.command("ping")
     return {"message": "MongoDB Connected Successfully"}
+@app.get("/check-vectors")
+def check_vectors():
+    import os
+
+    return {
+        "faiss_exists": os.path.exists("vectorstore/faiss_index.bin"),
+        "chunks_exists": os.path.exists("vectorstore/chunks.pkl")
+    }

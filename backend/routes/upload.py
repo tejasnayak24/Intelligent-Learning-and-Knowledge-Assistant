@@ -5,6 +5,13 @@ from services.pdf_service import (
 )
 import os
 from database import documents_collection
+from services.chunking_service import chunk_text
+from services.embedding_service import create_embeddings
+from services.vector_service import (
+    create_index,
+    save_index,
+    save_chunks
+)
 
 router = APIRouter()
 
@@ -22,6 +29,22 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     pdf_data = extract_text_from_pdf(file_path)
 
+    chunks = chunk_text(
+        pdf_data["text"]
+    )
+
+    embeddings = create_embeddings(
+        chunks
+    )
+
+    index = create_index(
+        embeddings
+    )
+
+    save_index(index)
+
+    save_chunks(chunks)
+
     save_document_metadata(
         file.filename,
         pdf_data["pages"],
@@ -34,7 +57,6 @@ async def upload_pdf(file: UploadFile = File(...)):
         "pages": pdf_data["pages"],
         "characters": pdf_data["characters"]
     }
-
 @router.get("/documents")
 def get_documents():
 
