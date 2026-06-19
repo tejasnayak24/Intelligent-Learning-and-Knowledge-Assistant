@@ -9,7 +9,7 @@ import Quiz from './pages/Quiz';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="min-h-screen bg-slate-950 text-slate-50">
         <Routes>
           {/* Default Route: Redirects to login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
