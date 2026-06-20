@@ -1,14 +1,16 @@
 import { useState, useRef } from 'react';
+import { documentService } from '../services/documentService';
 
 export default function PdfUpload() {
   const [isDragActive, setIsDragActive] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
 
-  // Handle drag events
+
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -19,12 +21,11 @@ export default function PdfUpload() {
     }
   };
 
-  // Process selected file
   const processFile = (selectedFile) => {
     setError('');
+    setSuccessMessage('');
     if (!selectedFile) return;
 
-    // Validate file type
     if (selectedFile.type !== 'application/pdf') {
       setError('Only PDF documents are supported!');
       return;
@@ -33,7 +34,6 @@ export default function PdfUpload() {
     setFile(selectedFile);
   };
 
-  // Handle drop zone file drop
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -44,7 +44,6 @@ export default function PdfUpload() {
     }
   };
 
-  // Handle file explorer picking
   const handleChange = (e) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
@@ -52,29 +51,34 @@ export default function PdfUpload() {
     }
   };
 
-  const handleUploadSubmit = (e) => {
+  const handleUploadSubmit = async (e) => {
     e.preventDefault();
     if (!file) return;
 
     setIsUploading(true);
     setUploadProgress(0);
+    setError('');
+    setSuccessMessage('');
 
     console.log(`Preparing to send ${file.name} via POST /upload`);
 
-    // Mock progress tracking (Will be replaced with Axios onUploadProgress)
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsUploading(false);
-            alert('File parsed and vectorized successfully!');
-          }, 500);
-          return 100;
-        }
-        return prev + 10;
+    try {
+      const resultMessage = await documentService.uploadPdf(file, (progress) => {
+        setUploadProgress(progress);
       });
-    }, 150);
+
+      console.log('Backend resolution response:', resultMessage);
+      setSuccessMessage('File parsed and vectorized successfully into your knowledge base!');
+      
+    } catch (err) {
+      console.error('Document ingestion engine processing exception:', err);
+
+      const errMsg = err.response?.data?.detail || 'Failed to connect to the document ingestion node.';
+      setError(typeof errMsg === 'string' ? errMsg : 'Validation error processing file boundaries.');
+      setUploadProgress(0);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const clearSelection = () => {
@@ -82,6 +86,7 @@ export default function PdfUpload() {
     setUploadProgress(0);
     setIsUploading(false);
     setError('');
+    setSuccessMessage('');
   };
 
   return (
@@ -93,6 +98,12 @@ export default function PdfUpload() {
       {error && (
         <div className="mb-4 rounded-lg bg-red-950/40 p-3 text-sm text-red-400 border border-red-900/50">
           {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-4 rounded-lg bg-emerald-950/40 p-3 text-sm text-emerald-400 border border-emerald-900/50">
+          {successMessage}
         </div>
       )}
 
@@ -138,7 +149,7 @@ export default function PdfUpload() {
             {!isUploading && (
               <button
                 onClick={clearSelection}
-                className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                className="text-slate-500 hover:text-red-400 transition-colors p-1 cursor-pointer"
                 title="Remove file"
               >
                 ❌
@@ -150,7 +161,11 @@ export default function PdfUpload() {
           {isUploading && (
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-400">
-                <span>Analyzing document contents...</span>
+                <span>
+                  {uploadProgress === 100 
+                    ? 'Processing vector embeddings...' 
+                    : 'Streaming binary partitions to server...'}
+                </span>
                 <span>{uploadProgress}%</span>
               </div>
               <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -162,12 +177,21 @@ export default function PdfUpload() {
             </div>
           )}
 
-          {!isUploading && (
+          {!isUploading && !successMessage && (
             <button
               onClick={handleUploadSubmit}
               className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all cursor-pointer shadow-md shadow-indigo-600/10"
             >
               Analyze & Initialize RAG Engine
+            </button>
+          )}
+          
+          {successMessage && (
+            <button
+              onClick={clearSelection}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm py-2.5 px-4 rounded-xl transition-all cursor-pointer border border-slate-700"
+            >
+              Upload Another Document
             </button>
           )}
         </div>

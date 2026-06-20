@@ -4,7 +4,6 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
 import Notes from './pages/Notes';
-import Quiz from './pages/Quiz';
 
 function App() {
   return (
@@ -22,7 +21,6 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/notes" element={<Notes />} />
-          <Route path="/quiz" element={<Quiz />} />
 
           {/* Fallback Catch-All Route */}
           <Route path="*" element={<div className="p-8 text-center">404 - Page Not Found</div>} />

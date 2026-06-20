@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -10,12 +11,17 @@ export default function Signup() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     setError('');
-    console.log('Submitting to API (POST /signup):', formData);
-    //TODO 
-    navigate('/login');
+    try {
+    await authService.signup(formData.name, formData.email, formData.password);
+    console.log('Registration successful! Redirecting to login...');
+    navigate('/login'); 
+  } catch (err) {
+    const errMsg = err.response?.data?.detail || 'Registration failed. Please check your inputs.';
+    setError(Array.isArray(errMsg) ? errMsg[0].msg : errMsg);
+  }
   };
 
   return (

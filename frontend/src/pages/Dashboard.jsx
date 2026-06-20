@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import PdfUpload from '../components/PdfUpload'; // Imported your new component
+import PdfUpload from '../components/PdfUpload'; 
 
 export default function Dashboard() {
   const navigate = useNavigate();

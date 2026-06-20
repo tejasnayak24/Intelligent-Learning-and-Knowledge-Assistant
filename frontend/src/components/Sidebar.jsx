@@ -7,7 +7,6 @@ export default function Sidebar() {
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
     { name: 'Chat with PDF', path: '/chat', icon: '💬' },
     { name: 'Generate Notes', path: '/notes', icon: '📝' },
-    { name: 'Take Quiz', path: '/quiz', icon: '❓' },
   ];
 
   return (
@@ -54,7 +53,7 @@ export default function Sidebar() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-200 truncate max-w-[120px]">Student User</p>
-              <p className="text-xs text-slate-500 truncate max-w-[120px]">student@nmamit.in</p>
+              <p className="text-xs text-slate-500 truncate max-w-[120px]">student@xyz.com</p>
             </div>
           </div>
           <Link to="/login" className="text-slate-400 hover:text-red-400 transition-colors" title="Sign out">

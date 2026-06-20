@@ -1,21 +1,37 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService'; // FIXED: Linked authorization service
 
 export default function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    console.log('Submitting to API (POST /login):', formData);
-    //TODO + token
-    navigate('/dashboard');
+    setIsSubmitting(true);
+    
+    console.log('Submitting credentials to API (POST /login):', formData.email);
+
+    try {
+      // LIVE CONNECTED: Await plain token string return from FastAPI
+      await authService.login(formData.email, formData.password);
+      
+      console.log('Login token verified and cached. Transitioning to application context...');
+      navigate('/chat'); // Redirects cleanly into your main working workspace
+    } catch (err) {
+      console.error('Login verification catch exception:', err);
+      const errMsg = err.response?.data?.detail || 'Invalid email or password. Please try again.';
+      setError(typeof errMsg === 'string' ? errMsg : 'Authentication failure.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -51,8 +67,9 @@ export default function Login() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-hidden sm:text-sm transition-all"
+                className="block w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none sm:text-sm transition-all"
                 placeholder="you@student.com"
+                disabled={isSubmitting}
               />
             </div>
 
@@ -65,8 +82,9 @@ export default function Login() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="block w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-hidden sm:text-sm transition-all"
+                className="block w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none sm:text-sm transition-all"
                 placeholder="••••••••"
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -75,9 +93,12 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="group flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer shadow-md shadow-indigo-600/10"
+              disabled={isSubmitting}
+              className={`group flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors cursor-pointer shadow-md shadow-indigo-600/10 ${
+                isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
             >
-              Sign in
+              {isSubmitting ? 'Verifying...' : 'Sign in'}
             </button>
           </div>
         </form>
