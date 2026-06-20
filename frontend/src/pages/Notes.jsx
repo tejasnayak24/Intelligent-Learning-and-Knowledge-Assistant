@@ -11,16 +11,36 @@ export default function Notes() {
     setIsGenerating(true);
     setSummaryText('');
     setError('');
-    console.log('Fetching unified topic summary from backend: GET /documents');
+    console.log('Fetching unified topic summary from backend via notesService...');
 
     try {
-      // LIVE CONNECTED: Grabs the raw text string returned by your teammate's API
+      // 1. Gather the payload from the service node
       const responseData = await notesService.getNotes();
-      setSummaryText(responseData);
+      console.log('Backend notes response received:', responseData);
+
+      // 2. SAFETY GATE: Unpack payload safely whether it's a string or object matrix
+      let parsedNotesText = '';
+
+      if (typeof responseData === 'string') {
+        parsedNotesText = responseData;
+      } else if (responseData && typeof responseData === 'object') {
+        // Fallback checks across common database compilation keys
+        parsedNotesText = responseData.summary || 
+                          responseData.notes || 
+                          responseData.text || 
+                          responseData.response || 
+                          JSON.stringify(responseData);
+      } else {
+        parsedNotesText = 'Unable to parse structural content from backend node.';
+      }
+
+      setSummaryText(parsedNotesText);
     } catch (err) {
       console.error('Notes retrieval error:', err);
       const errMsg = err.response?.data?.detail || 'Failed to retrieve the topic summary from the server.';
-      setError(typeof errMsg === 'string' ? errMsg : 'Error loading compilation arrays.');
+      
+      // Also harden error printing to avoid object array crashes here
+      setError(Array.isArray(errMsg) ? errMsg[0].msg : typeof errMsg === 'string' ? errMsg : 'Error loading compilation arrays.');
     } finally {
       setIsGenerating(false);
     }
@@ -74,7 +94,7 @@ export default function Notes() {
             </button>
           </div>
 
-          {/* Right Content Area (Simplified View) */}
+          {/* Right Content Area */}
           <div className="flex-1 overflow-y-auto p-8 bg-slate-950/40">
             {isGenerating ? (
               <div className="h-full flex flex-col items-center justify-center space-y-4">
@@ -88,7 +108,7 @@ export default function Notes() {
                   <span className="text-xs text-slate-500 bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800/60">Live Context</span>
                 </div>
                 
-                {/* Clean, format-preserved text stream layout */}
+                {/* Safe layout execution container */}
                 <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap pt-2">
                   {summaryText}
                 </div>

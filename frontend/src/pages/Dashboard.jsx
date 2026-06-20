@@ -22,14 +22,6 @@ export default function Dashboard() {
       actionText: 'Create Summaries',
       path: '/notes',
     },
-    {
-      title: 'Generate Quiz',
-      description: 'Test your understanding with automated multiple-choice questions curated from your text.',
-      icon: '❓',
-      color: 'from-amber-600/20 to-orange-600/20 text-amber-400 border border-amber-500/30',
-      actionText: 'Start Quiz',
-      path: '/quiz',
-    },
   ];
 
   return (
@@ -55,7 +47,9 @@ export default function Dashboard() {
         {/* Feature Tools Grid */}
         <section className="space-y-4">
           <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Available Core Tools</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* FIXED: Changed md:grid-cols-3 to md:grid-cols-2 so the two items stretch perfectly across the viewport */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cards.map((card, idx) => (
               <div
                 key={idx}

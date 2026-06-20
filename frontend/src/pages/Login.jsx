@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService'; // FIXED: Linked authorization service
+import { authService } from '../services/authService'; 
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,15 +20,18 @@ export default function Login() {
     console.log('Submitting credentials to API (POST /login):', formData.email);
 
     try {
-      // LIVE CONNECTED: Await plain token string return from FastAPI
+      // 1. Fire network validation check against FastAPI database
       await authService.login(formData.email, formData.password);
       
-      console.log('Login token verified and cached. Transitioning to application context...');
-      navigate('/chat'); // Redirects cleanly into your main working workspace
+      console.log('Login token verified and cached. Transitioning to dashboard...');
+      // 2. Clear route transition only occurs if no error was raised above
+      navigate('/dashboard'); 
     } catch (err) {
       console.error('Login verification catch exception:', err);
+      
+      // Extract FastAPI detail string or validation error array safely
       const errMsg = err.response?.data?.detail || 'Invalid email or password. Please try again.';
-      setError(typeof errMsg === 'string' ? errMsg : 'Authentication failure.');
+      setError(Array.isArray(errMsg) ? errMsg[0].msg : errMsg);
     } finally {
       setIsSubmitting(false);
     }
