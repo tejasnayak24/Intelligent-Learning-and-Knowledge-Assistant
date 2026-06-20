@@ -8,8 +8,7 @@ from database import documents_collection
 from services.chunking_service import chunk_text
 from services.embedding_service import create_embeddings
 from services.vector_service import (
-    create_index,
-    save_index,
+    append_to_index,
     save_chunks
 )
 
@@ -19,15 +18,21 @@ UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 @router.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
 
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file_path = os.path.join(
+        UPLOAD_FOLDER,
+        file.filename
+    )
 
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    pdf_data = extract_text_from_pdf(file_path)
+    pdf_data = extract_text_from_pdf(
+        file_path
+    )
 
     chunks = chunk_text(
         pdf_data["text"]
@@ -37,13 +42,22 @@ async def upload_pdf(file: UploadFile = File(...)):
         chunks
     )
 
-    index = create_index(
+    append_to_index(
         embeddings
     )
 
-    save_index(index)
+    chunk_records = []
 
-    save_chunks(chunks)
+    for chunk in chunks:
+
+        chunk_records.append({
+            "filename": file.filename,
+            "text": chunk
+        })
+
+    save_chunks(
+        chunk_records
+    )
 
     save_document_metadata(
         file.filename,
@@ -57,6 +71,8 @@ async def upload_pdf(file: UploadFile = File(...)):
         "pages": pdf_data["pages"],
         "characters": pdf_data["characters"]
     }
+
+
 @router.get("/documents")
 def get_documents():
 

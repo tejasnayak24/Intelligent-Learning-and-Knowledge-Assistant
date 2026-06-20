@@ -1,33 +1,55 @@
 import faiss
 import numpy as np
 import pickle
+import os
 
-def create_index(embeddings):
 
-    dimension = embeddings.shape[1]
+def append_to_index(embeddings):
 
-    index = faiss.IndexFlatL2(dimension)
+    index_file = "vectorstore/faiss_index.bin"
 
-    index.add(
-        np.array(embeddings).astype("float32")
+    embeddings = np.array(
+        embeddings
+    ).astype("float32")
+
+    if os.path.exists(index_file):
+
+        index = faiss.read_index(
+            index_file
+        )
+
+    else:
+
+        dimension = embeddings.shape[1]
+
+        index = faiss.IndexFlatL2(
+            dimension
+        )
+
+    index.add(embeddings)
+
+    faiss.write_index(
+        index,
+        index_file
     )
 
     return index
 
 
-def save_index(index):
+def save_chunks(new_chunks):
 
-    faiss.write_index(
-        index,
-        "vectorstore/faiss_index.bin"
-    )
+    chunks_file = "vectorstore/chunks.pkl"
 
+    if os.path.exists(chunks_file):
 
-def save_chunks(chunks):
+        with open(chunks_file, "rb") as f:
+            all_chunks = pickle.load(f)
 
-    with open(
-        "vectorstore/chunks.pkl",
-        "wb"
-    ) as f:
+    else:
 
-        pickle.dump(chunks, f)
+        all_chunks = []
+
+    all_chunks.extend(new_chunks)
+
+    with open(chunks_file, "wb") as f:
+        pickle.dump(all_chunks, f)
