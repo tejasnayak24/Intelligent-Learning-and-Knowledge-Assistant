@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from services.pdf_service import (
     extract_text_from_pdf,
     save_document_metadata
@@ -15,11 +15,10 @@ from services.vector_service import (
 router = APIRouter()
 
 UPLOAD_FOLDER = "uploads"
-VECTORSTORE_FOLDER = "vectorstore" 
+VECTORSTORE_FOLDER = "vectorstore"
 
-# Initialize directories automatically on server spin-up
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(VECTORSTORE_FOLDER, exist_ok=True) 
+os.makedirs(VECTORSTORE_FOLDER, exist_ok=True)
 
 
 @router.post("/upload")
@@ -37,15 +36,33 @@ async def upload_pdf(file: UploadFile = File(...)):
         file_path
     )
 
+    # Check if text was extracted
+    if not pdf_data["text"].strip():
+        raise HTTPException(
+            status_code=400,
+            detail="No text could be extracted from this PDF."
+        )
+
     chunks = chunk_text(
         pdf_data["text"]
     )
+
+    print("PDF Text Length:", len(pdf_data["text"]))
+    print("Chunks Generated:", len(chunks))
+
+    # Check if chunking failed
+    if not chunks:
+        raise HTTPException(
+            status_code=400,
+            detail="No chunks generated from PDF."
+        )
 
     embeddings = create_embeddings(
         chunks
     )
 
-    # This downstream service call will now successfully locate the parent directory
+    print("Embeddings Shape:", embeddings.shape)
+
     append_to_index(
         embeddings
     )
@@ -53,7 +70,6 @@ async def upload_pdf(file: UploadFile = File(...)):
     chunk_records = []
 
     for chunk in chunks:
-
         chunk_records.append({
             "filename": file.filename,
             "text": chunk
@@ -73,7 +89,8 @@ async def upload_pdf(file: UploadFile = File(...)):
         "message": "PDF uploaded successfully",
         "filename": file.filename,
         "pages": pdf_data["pages"],
-        "characters": pdf_data["characters"]
+        "characters": pdf_data["characters"],
+        "chunks_created": len(chunks)
     }
 
 
