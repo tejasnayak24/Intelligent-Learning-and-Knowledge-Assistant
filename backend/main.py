@@ -3,11 +3,10 @@ from routes.auth import router as auth_router
 from routes.upload import router as upload_router
 from database import db
 from routes.search import router as search_router
-<<<<<<< HEAD
 
 app = FastAPI()
 
-=======
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
