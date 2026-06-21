@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from fastapi import APIRouter
-=======
 from fastapi import APIRouter, HTTPException, status
->>>>>>> frontend
 from models.user import UserSignup, UserLogin
 from services.auth_service import create_user, login_user
 
@@ -10,27 +6,12 @@ router = APIRouter()
 
 @router.post("/signup")
 def signup(user: UserSignup):
-<<<<<<< HEAD
-
-    return create_user(
-=======
     # 1. Execute the registration database logic
     result = create_user(
->>>>>>> frontend
         user.name,
         user.email,
         user.password
     )
-<<<<<<< HEAD
-
-@router.post("/login")
-def login(user: UserLogin):
-
-    return login_user(
-        user.email,
-        user.password
-    )
-=======
     
     # 2. Safety Net: Check if the service returned a failure string or dictionary
     if isinstance(result, str) and "error" in result.lower():
@@ -68,4 +49,3 @@ def login(user: UserLogin):
 
     # 3. If no errors are detected, return the valid plain token payload safely
     return result
->>>>>>> frontend
