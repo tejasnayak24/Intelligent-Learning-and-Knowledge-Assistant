@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 venv/
 __pycache__/
@@ -14,3 +15,66 @@ backend/uploads/*
 
 # Vector DB
 backend/vectorstore/*
+=======
+# ==========================================
+# SYSTEM ARTIFACTS
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==========================================
+# FRONTEND (React / Node / Vite)
+# ==========================================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# BACKEND (Python / FastAPI)
+# ==========================================
+__pycache__/
+backend/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+backend/.pytest_cache/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+backend/.venv/
+backend/venv/
+backend/env/
+
+# ==========================================
+# ENVIRONMENT VARIABLES & SECRETS (CRITICAL)
+# ==========================================
+.env
+.env.local
+.env.shared
+frontend/.env
+frontend/.env.local
+backend/.env
+
+# ==========================================
+# APPLICATION / RAG SPECIFIC DATA
+# ==========================================
+# Prevents large uploaded user files from bloating your repository
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Prevents local heavy FAISS binaries/pickle data maps from causing conflicts
+backend/vectorstore/*
+!backend/vectorstore/.gitkeep
+>>>>>>> frontend

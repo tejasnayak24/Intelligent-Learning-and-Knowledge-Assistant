@@ -15,8 +15,16 @@ from services.vector_service import (
 router = APIRouter()
 
 UPLOAD_FOLDER = "uploads"
+<<<<<<< HEAD
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+=======
+VECTORSTORE_FOLDER = "vectorstore" 
+
+# Initialize directories automatically on server spin-up
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(VECTORSTORE_FOLDER, exist_ok=True) 
+>>>>>>> frontend
 
 
 @router.post("/upload")
@@ -42,6 +50,10 @@ async def upload_pdf(file: UploadFile = File(...)):
         chunks
     )
 
+<<<<<<< HEAD
+=======
+    # This downstream service call will now successfully locate the parent directory
+>>>>>>> frontend
     append_to_index(
         embeddings
     )
