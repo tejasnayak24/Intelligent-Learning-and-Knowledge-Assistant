@@ -3,11 +3,6 @@ from routes.auth import router as auth_router
 from routes.upload import router as upload_router
 from database import db
 from routes.search import router as search_router
-<<<<<<< HEAD
-
-app = FastAPI()
-
-=======
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -25,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"], # Allows headers like Content-Type and Authorization
 )
 
->>>>>>> frontend
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(search_router)

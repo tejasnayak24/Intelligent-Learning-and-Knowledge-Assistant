@@ -1,13 +1,8 @@
-<<<<<<< HEAD
-from fastapi import APIRouter
-from pydantic import BaseModel
-=======
 from fastapi import APIRouter, HTTPException, status
 import pickle
 import os
 from pydantic import BaseModel
 import google.generativeai as genai  
->>>>>>> frontend
 
 from services.search_service import search_documents
 from services.gemini_service import generate_answer
@@ -45,9 +40,6 @@ def search(request: SearchRequest):
                 for chunk in chunks
             )
         )
-<<<<<<< HEAD
-    }
-=======
     }
 
 @router.post("/summarize")
@@ -100,4 +92,3 @@ def generate_summary():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate summary: {str(e)}"
         )
->>>>>>> frontend
