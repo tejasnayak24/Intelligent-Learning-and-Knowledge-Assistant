@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 import pickle
 import os
 from pydantic import BaseModel
+import google.generativeai as genai  
 
 from services.search_service import search_documents
 from services.gemini_service import generate_answer
@@ -44,7 +45,6 @@ def search(request: SearchRequest):
 @router.post("/summarize")
 def generate_summary():
     try:
-       
         chunks_path = "vectorstore/chunks.pkl"
         if not os.path.exists(chunks_path):
             raise HTTPException(
@@ -64,14 +64,25 @@ def generate_summary():
         extracted_texts = [doc["text"] for doc in chunk_records[:15]] 
         unified_context = " ".join(extracted_texts)
 
-        ai_summary = (
-            "TOPIC SUMMARY SHEET\n\n"
-            "Primary Overview:\n"
-            "This document covers the core architectures of full-stack engineering ecosystems...\n\n"
-            "Key Takeaways:\n"
-            "• Core architectural frameworks require isolated security gates.\n"
-            "• Route synchronization matches explicit HTTP methods to prevent 405 system faults."
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Backend configuration error: GEMINI_API_KEY missing from environment variables."
+            )
+            
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-3.5-flash")
+        
+        prompt = (
+            "You are an expert study assistant. Create a highly structured, comprehensive, "
+            "and high-yield summary blueprint of the following document text context. "
+            "Organize it cleanly using logical headings and bullet points for key takeaways:\n\n"
+            f"{unified_context}"
         )
+
+        response = model.generate_content(prompt)
+        ai_summary = response.text # Grabs real response string from Gemini nodes
 
         return {"summary": ai_summary}
 

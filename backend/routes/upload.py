@@ -15,11 +15,11 @@ from services.vector_service import (
 router = APIRouter()
 
 UPLOAD_FOLDER = "uploads"
-VECTORSTORE_FOLDER = "vectorstore" # FIXED: Defined the vector storage target name
+VECTORSTORE_FOLDER = "vectorstore" 
 
 # Initialize directories automatically on server spin-up
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(VECTORSTORE_FOLDER, exist_ok=True) # FIXED: Bulletproof safety check creating the directory if missing
+os.makedirs(VECTORSTORE_FOLDER, exist_ok=True) 
 
 
 @router.post("/upload")
