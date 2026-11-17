@@ -177,6 +177,7 @@ Intelligent-Learning-and-Knowledge-Assistant
 │   │   ├── pdf_service.py
 │   │   ├── chunking_service.py
 │   │   ├── embedding_service.py
+│   │   ├── model_loader.py
 │   │   ├── vector_service.py
 │   │   ├── search_service.py
 │   │   └── gemini_service.py

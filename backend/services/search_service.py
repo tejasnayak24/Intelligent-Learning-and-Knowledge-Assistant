@@ -1,10 +1,6 @@
 import faiss
 import pickle
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
-)
+from services.model_loader import get_embedding_model
 
 def search_documents(
     query,
@@ -22,7 +18,7 @@ def search_documents(
 
         chunks = pickle.load(f)
 
-    query_embedding = model.encode(
+    query_embedding = get_embedding_model().encode(
         [query]
     )
 
