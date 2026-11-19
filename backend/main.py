@@ -4,8 +4,6 @@ from routes.upload import router as upload_router
 from database import db
 from routes.search import router as search_router
 
-app = FastAPI()
-
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,7 +16,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://intelligent-learning-and-knowledge-zeta.vercel.app",  # production frontend (Vercel)
+        "https://intelligent-learning-and-knowledge.vercel.app",  # production frontend (Vercel)
     ], # Allows dev ports
     allow_credentials=True,
     allow_methods=["*"], # CRITICAL: This allows OPTIONS, POST, GET, etc.
