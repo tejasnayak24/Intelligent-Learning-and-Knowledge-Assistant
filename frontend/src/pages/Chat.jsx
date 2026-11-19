@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { chatService } from '../services/chatService';
+import { documentService } from '../services/documentService';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]); // FIXED: Initialized empty to prevent fake greeting
   const [hasDocument, setHasDocument] = useState(false);
+  const [activeDocumentName, setActiveDocumentName] = useState('');
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [inputMessage, setInputMessage] = useState(''); 
   const [isLoading, setIsLoading] = useState(false);    
@@ -20,9 +22,12 @@ export default function Chat() {
     const verifyDocumentContext = async () => {
       setIsCheckingStatus(true);
       const status = await chatService.checkVectorStatus();
-      
-      if (status.faiss_exists && status.chunks_exists) {
+      // Questions are answered only from this user's selected PDF.
+      const activeDocument = documentService.getActiveDocument();
+
+      if (activeDocument && status.faiss_exists && status.chunks_exists) {
         setHasDocument(true);
+        setActiveDocumentName(activeDocument.filename || '');
         // Load the greeting only if the indices physically exist on the server
         setMessages([
           {
@@ -109,7 +114,11 @@ export default function Chat() {
             <div>
               <h2 className="text-sm font-semibold text-white">Document Workspace</h2>
               <p className="text-xs text-slate-400">
-                {isCheckingStatus ? 'Verifying Index...' : hasDocument ? 'RAG Analysis Engine Online' : 'No Document Context Active'}
+                {isCheckingStatus
+                  ? 'Verifying Index...'
+                  : hasDocument
+                    ? `RAG Analysis Engine Online${activeDocumentName ? ` · ${activeDocumentName}` : ''}`
+                    : 'No Document Context Active'}
               </p>
             </div>
           </div>

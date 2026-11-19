@@ -1,4 +1,5 @@
 import API from './api';
+import { documentService } from './documentService';
 
 export const chatService = {
   // Check if a document vector store index is active in the backend directory
@@ -13,7 +14,12 @@ export const chatService = {
   },
 
   askQuestion: async (questionText) => {
-    const response = await API.post('/search', { question: questionText });
+    // Answers come only from the selected PDF (see documentService).
+    const activeDocument = documentService.getActiveDocument();
+    const response = await API.post('/search', {
+      question: questionText,
+      document_id: activeDocument?.id,
+    });
     return response.data; // Returns the raw text response string from Gemini
   }
 };
