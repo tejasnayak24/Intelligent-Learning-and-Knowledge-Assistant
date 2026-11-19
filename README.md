@@ -1,178 +1,79 @@
-# 🧠 Intelligent Learning & Knowledge Assistant (ILKA)
+# 🧠 Cognify AI
 
-An AI-powered Retrieval-Augmented Generation (RAG) platform that enables users to upload multiple PDF documents, perform semantic search, and receive context-aware answers generated using Google Gemini. The system combines vector search, document intelligence, and generative AI to create an interactive learning assistant for students, researchers, and professionals.
+**Turn documents into knowledge.**
 
----
+Cognify AI is an AI-powered document intelligence and learning platform built with Retrieval-Augmented Generation (RAG). It lets users upload PDF documents, ask questions grounded in a selected document, and receive context-aware answers with page references.
 
-## 🚀 Overview
+**Live demo:** [Cognify AI](https://intelligent-learning-and-knowledge.vercel.app/)
 
-ILKA transforms static learning materials into an intelligent knowledge base by:
-
-* Extracting and processing content from PDF documents
-* Generating semantic embeddings using transformer models
-* Storing document vectors in FAISS for fast retrieval
-* Retrieving relevant context for user queries
-* Generating accurate answers using Google Gemini
-* Displaying document citations for transparency and verification
+> AI responses and note generation depend on the configured Google Gemini API quota and availability.
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-### Authentication & User Management
+- **User accounts:** registration, login, and JWT-based authentication.
+- **PDF ingestion:** upload PDFs, extract text, split content into chunks, and generate embeddings.
+- **Document-scoped chat:** select a PDF and ask questions using only that document's retrieved content.
+- **User-level isolation:** authenticated requests are scoped to the document owner.
+- **Semantic retrieval:** FAISS similarity search over embeddings.
+- **Source references:** answers can include the PDF name and page references.
+- **AI answers:** Google Gemini generates responses using retrieved context.
+- **Learning notes:** generate notes from the selected document.
 
-* Secure User Registration
-* JWT-based Authentication
-* User Login & Session Management
-
-### Document Processing
-
-* Multi-PDF Upload Support
-* PDF Text Extraction
-* Automatic Document Chunking
-* Metadata Storage
-* Document Management Dashboard
-
-### AI-Powered Retrieval
-
-* Semantic Search
-* Vector Similarity Search
-* Context Retrieval using FAISS
-* Multi-Document Knowledge Retrieval
-
-### Generative AI
-
-* Context-Aware Question Answering
-* Google Gemini Integration
-* Hallucination Reduction through RAG
-* Source Citation Generation
-
-### Learning Assistant
-
-* Chat with Documents
-* Knowledge Discovery
-* Intelligent Document Exploration
-* Context-Based Answers
-
----
-
-# 🏗️ System Architecture
+## 🏗️ Architecture
 
 ```text
-User
- │
- ▼
-React Frontend
- │
- ▼
-FastAPI Backend
- │
- ├── Authentication Module
- │
- ├── PDF Processing Module
- │       │
- │       ├── Text Extraction
- │       ├── Chunking
- │       └── Metadata Storage
- │
- ├── Embedding Engine
- │       │
- │       └── Sentence Transformers
- │
- ├── Vector Database
- │       │
- │       └── FAISS
- │
- ├── Retrieval Layer
- │
- └── Gemini LLM
-         │
-         ▼
-  Context-Aware Responses
+                         Cognify AI
+                             │
+                       React + Vite
+                             │
+                         FastAPI
+                             │
+              ┌──────────────┼──────────────┐
+              │              │              │
+        Authentication  PDF Processing   API Routes
+           (JWT)        (PyPDF, chunks)  (Upload/Search)
+                             │
+                     Embedding Engine
+                   all-MiniLM-L6-v2
+                             │
+                       FAISS Index
+                (document + owner metadata)
+                             │
+                  Document-scoped Retrieval
+                             │
+                       Google Gemini
+                             │
+              Answer + source/page references
 ```
 
----
+Each uploaded PDF receives a document identifier. Retrieval is restricted to the selected document and its owner before context is sent to Gemini.
 
-# 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
-## Frontend
+| Area | Technologies |
+|---|---|
+| Frontend | React, Vite, JavaScript, CSS |
+| Backend | Python, FastAPI, Uvicorn, Pydantic |
+| Database | MongoDB Atlas, PyMongo |
+| Embeddings | FastEmbed / ONNX Runtime, all-MiniLM-L6-v2 |
+| Vector search | FAISS |
+| LLM | Google Gemini API |
+| PDF processing | PyPDF, custom chunking pipeline |
+| Authentication | JWT |
+| Deployment | Vercel (frontend), Render (backend) |
 
-| Technology        | Purpose               |
-| ----------------- | --------------------- |
-| React.js          | User Interface        |
-| Vite              | Frontend Build Tool   |
-| JavaScript (ES6+) | Application Logic     |
-| CSS3              | Styling               |
-| Fetch API         | Backend Communication |
-
----
-
-## Backend
-
-| Technology    | Purpose                         |
-| ------------- | ------------------------------- |
-| Python        | Core Backend Language           |
-| FastAPI       | REST API Framework              |
-| Uvicorn       | ASGI Server                     |
-| Pydantic      | Request Validation              |
-| Python Dotenv | Environment Variable Management |
-
----
-
-## Database
-
-| Technology    | Purpose        |
-| ------------- | -------------- |
-| MongoDB Atlas | Cloud Database |
-| PyMongo       | MongoDB Driver |
-
----
-
-## AI & Machine Learning
-
-| Technology                           | Purpose                  |
-| ------------------------------------ | ------------------------ |
-| Google Gemini API                    | Answer Generation        |
-| Sentence Transformers                | Embedding Generation     |
-| all-MiniLM-L6-v2                     | Embedding Model          |
-| FAISS                                | Vector Similarity Search |
-| Retrieval-Augmented Generation (RAG) | Context-Aware QA         |
-
----
-
-## Document Processing
-
-| Technology               | Purpose             |
-| ------------------------ | ------------------- |
-| PyPDF                    | PDF Text Extraction |
-| Custom Chunking Pipeline | Text Segmentation   |
-
----
-
-## Development Tools
-
-| Technology | Purpose                 |
-| ---------- | ----------------------- |
-| Git        | Version Control         |
-| GitHub     | Repository Hosting      |
-| VS Code    | Development Environment |
-| Swagger UI | API Testing             |
-
----
-
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```text
-Intelligent-Learning-and-Knowledge-Assistant
-│
-├── backend
-│   │
-│   ├── routes
+Intelligent-Learning-and-Knowledge-Assistant/
+├── backend/
+│   ├── routes/
 │   │   ├── auth.py
 │   │   ├── upload.py
 │   │   └── search.py
-│   │
-│   ├── services
+│   ├── services/
 │   │   ├── auth_service.py
 │   │   ├── pdf_service.py
 │   │   ├── chunking_service.py
@@ -181,196 +82,114 @@ Intelligent-Learning-and-Knowledge-Assistant
 │   │   ├── vector_service.py
 │   │   ├── search_service.py
 │   │   └── gemini_service.py
-│   │
-│   ├── uploads
-│   ├── vectorstore
+│   ├── tests/
 │   ├── database.py
 │   ├── main.py
 │   └── requirements.txt
-│
-├── frontend
-│   ├── src
-│   ├── public
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── vercel.json
 │   └── package.json
-│
 └── README.md
 ```
 
----
+## ⚙️ Run Locally
 
-# 🔄 Workflow
+### Prerequisites
 
-### Step 1: Upload Documents
+- Python 3.10+ (use the version supported by the backend dependencies)
+- Node.js and npm
+- MongoDB connection string
+- Google Gemini API key
 
-User uploads one or more PDF files.
-
-### Step 2: Document Processing
-
-The system:
-
-* Extracts text
-* Splits text into chunks
-* Generates embeddings
-
-### Step 3: Vector Storage
-
-Embeddings are stored in FAISS.
-
-### Step 4: User Query
-
-User asks a question.
-
-### Step 5: Semantic Retrieval
-
-Relevant chunks are retrieved using vector similarity search.
-
-### Step 6: Answer Generation
-
-Retrieved context is sent to Gemini.
-
-### Step 7: Response Generation
-
-Gemini generates:
-
-* Context-aware answer
-* Source citations
-
----
-
-# 🔐 Environment Variables
-
-Create a `.env` file inside the backend directory.
-
-```env
-MONGO_URI=your_mongodb_connection_string
-
-JWT_SECRET=your_jwt_secret
-
-GEMINI_API_KEY=your_gemini_api_key
-```
-
----
-
-# ⚙️ Installation & Setup
-
-## Clone Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/tejasnayak24/Intelligent-Learning-and-Knowledge-Assistant.git
-
 cd Intelligent-Learning-and-Knowledge-Assistant
 ```
 
----
+### 2. Configure the backend
 
-## Backend Setup
+Create `backend/.env`:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_long_random_secret
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Install dependencies and start the API:
 
 ```bash
 cd backend
-
 python -m venv venv
-
+# Windows
 venv\Scripts\activate
+# macOS/Linux
+# source venv/bin/activate
 
 pip install -r requirements.txt
-```
-
-Run Backend:
-
-```bash
 uvicorn main:app --reload
 ```
 
-Backend URL:
+Backend: http://127.0.0.1:8000  
+API docs: http://127.0.0.1:8000/docs
 
-```text
-http://127.0.0.1:8000
-```
+### 3. Configure and start the frontend
 
-API Documentation:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
----
-
-## Frontend Setup
+In a second terminal:
 
 ```bash
 cd frontend
-
 npm install
-
 npm run dev
 ```
 
-Frontend URL:
+Frontend: http://localhost:5173
 
-```text
-http://localhost:5173
-```
+Set `VITE_API_BASE_URL` in the frontend environment when pointing the frontend to a non-default backend. Never put backend secrets in frontend environment variables.
 
----
+## 🔌 API
 
-# 📡 API Endpoints
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/signup` | Register a user |
+| POST | `/login` | Authenticate and obtain a token |
+| POST | `/upload` | Upload and process a PDF |
+| GET | `/documents` | List the authenticated user's documents |
+| POST | `/search` | Ask a question about the selected document |
+| POST | `/summarize` | Generate notes for the selected document |
 
-### Authentication
+Protected document endpoints require a valid bearer token. Search and summary requests must include the selected `document_id`.
 
-```http
-POST /signup
-POST /login
-```
+## 🔄 How It Works
 
-### Document Management
+1. **Upload:** the user uploads a PDF.
+2. **Extract and chunk:** text and page information are extracted and divided into chunks.
+3. **Embed and index:** chunks are converted into vectors and added to FAISS with document and owner metadata.
+4. **Select and ask:** the user selects a document and submits a question.
+5. **Filter and retrieve:** retrieval considers only chunks belonging to that user and selected document.
+6. **Generate:** retrieved context is sent to Gemini to produce a grounded answer.
+7. **Reference:** the response includes source information and page references where available.
 
-```http
-POST /upload
-GET /documents
-```
+## 🔐 Security & Configuration
 
-### Semantic Search
+- Keep `.env` files and API credentials out of Git.
+- Use a strong, unique `JWT_SECRET` in production.
+- Do not share access tokens or API keys.
+- Document retrieval is scoped by the authenticated owner and selected document.
 
-```http
-POST /search
-```
+## 🚧 Possible Enhancements
 
-Example Request:
+- OCR for scanned PDFs
+- Quiz and flashcard generation
+- Persistent chat history
+- Personalized learning paths
+- Document deletion and re-indexing
+- More model-provider options
 
-```json
-{
-  "question": "What is machine learning?"
-}
-```
+## 📜 License
 
----
-
-# 🎯 Current Capabilities
-
-* Multi-document Retrieval
-* Semantic Search
-* RAG-based Question Answering
-* Gemini Integration
-* Source Citations
-* MongoDB Storage
-* JWT Authentication
-* FAISS Vector Search
-
----
-
-# 🔮 Future Enhancements
-
-* OCR Support for Scanned PDFs
-* AI Note Generation
-* Quiz Generation
-* Flashcard Generation
-* Chat History
-* Personalized Learning Paths
-* Document Deletion & Reindexing
-* Role-Based Access Control
-
----
-
-# 📜 License
-
-This project is developed for educational, research, and academic purposes.
+Developed for educational, research, and academic purposes.
