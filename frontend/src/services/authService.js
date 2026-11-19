@@ -44,6 +44,32 @@ export const authService = {
     localStorage.removeItem('token');
   },
 
+  // --- CURRENT USER ---
+  // Name and email of the signed-in user, read from the token saved at login.
+  // Returns null when there is no token, or it is unreadable, expired or has
+  // no email. This only decodes the token for display; it does not verify it.
+  getCurrentUser: () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+
+      // A JWT is header.payload.signature; the payload is base64url-encoded JSON.
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+      const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+      const claims = JSON.parse(new TextDecoder().decode(bytes));
+
+      const email = typeof claims?.email === 'string' ? claims.email.trim() : '';
+      const expired = typeof claims?.exp === 'number' && claims.exp * 1000 <= Date.now();
+      if (!email || expired) return null;
+
+      const name = typeof claims.name === 'string' ? claims.name.trim() : '';
+      return { name: name || null, email };
+    } catch {
+      return null;
+    }
+  },
+
   // --- HELPER UTILITY ---
   // Quick check method for protecting client-side dashboard routing matrices
   isAuthenticated: () => {

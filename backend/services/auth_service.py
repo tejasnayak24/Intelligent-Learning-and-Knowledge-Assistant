@@ -34,8 +34,10 @@ def login_user(email, password):
     if not pwd_context.verify(password, user["password"]):
         return {"error": "Invalid password"}
 
+    # The frontend reads name and email from the token to show who is signed in.
     token = create_access_token({
-    "email": user["email"]
+    "email": user["email"],
+    "name": user.get("name")
 })
 
     return {

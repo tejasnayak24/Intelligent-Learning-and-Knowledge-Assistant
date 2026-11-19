@@ -1,7 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
+import { authService } from '../services/authService';
 
 export default function Sidebar() {
   const location = useLocation();
+
+  // Signed-in user, read from the login token on every render so that a
+  // refresh or a new login always shows the current user. Without a valid
+  // token, show a neutral placeholder instead of anyone's details.
+  const user = authService.getCurrentUser();
+  const displayName = user ? (user.name || user.email.split('@')[0]) : 'Guest';
+  const displayEmail = user ? user.email : 'Not signed in';
+  const initial = ([...displayName][0] || 'U').toUpperCase();
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
@@ -49,14 +58,14 @@ export default function Sidebar() {
         <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-800/60 transition-colors">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
-              U
+              {initial}
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-200 truncate max-w-[120px]">Student User</p>
-              <p className="text-xs text-slate-500 truncate max-w-[120px]">student@xyz.com</p>
+              <p className="text-sm font-medium text-slate-200 truncate max-w-[120px]" title={displayName}>{displayName}</p>
+              <p className="text-xs text-slate-500 truncate max-w-[120px]" title={displayEmail}>{displayEmail}</p>
             </div>
           </div>
-          <Link to="/login" className="text-slate-400 hover:text-red-400 transition-colors" title="Sign out">
+          <Link to="/login" onClick={() => authService.logout()} className="text-slate-400 hover:text-red-400 transition-colors" title="Sign out">
             logout
           </Link>
         </div>
