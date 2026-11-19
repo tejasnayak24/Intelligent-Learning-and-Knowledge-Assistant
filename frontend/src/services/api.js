@@ -1,7 +1,21 @@
 import axios from 'axios';
 
+// Address of the backend API, used by every service in this folder. Vite reads
+// VITE_API_BASE_URL from .env.development for `npm run dev` (the local backend)
+// and from .env.production for `npm run build`, which is what Vercel runs (the
+// Render backend). A value set in the environment, such as in the Vercel
+// project settings, takes priority over both files.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim();
+
+if (!API_BASE_URL) {
+  console.error(
+    'VITE_API_BASE_URL is not set, so API requests will not reach the backend. ' +
+      'Set it in frontend/.env.development or frontend/.env.production.'
+  );
+}
+
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000', 
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
