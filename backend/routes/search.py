@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 import os
+import traceback
 from typing import Optional
+from google.genai import errors as genai_errors
 from pydantic import BaseModel
 import google.generativeai as genai  
 
@@ -14,6 +16,16 @@ NO_DOCUMENT_SELECTED = "No document selected. Please upload a PDF first."
 NO_DOCUMENT_CONTENT = (
     "No content was found for the selected document. "
     "Please upload the PDF again."
+)
+SEARCH_FAILED = "The selected document could not be searched. Please try again."
+AI_LIMIT_REACHED = (
+    "The AI service has reached its usage limit. Please try again later."
+)
+AI_UNAVAILABLE = (
+    "The AI service could not answer right now. Please try again in a moment."
+)
+AI_EMPTY_ANSWER = (
+    "The AI service returned an empty answer. Please try asking again."
 )
 
 
@@ -60,12 +72,23 @@ def search(
             detail=NO_DOCUMENT_SELECTED
         )
 
+    # Failures below are raised as HTTPException so the response keeps its CORS
+    # headers and the chat can show the reason. An unhandled exception becomes
+    # a bare 500 without them, which the browser hides from the frontend.
+
     # Only chunks of the selected document, and only if it belongs to this user.
-    chunks = search_documents(
-        request.question,
-        request.document_id,
-        user_email
-    )
+    try:
+        chunks = search_documents(
+            request.question,
+            request.document_id,
+            user_email
+        )
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=SEARCH_FAILED
+        )
 
     if not chunks:
         raise HTTPException(
@@ -78,10 +101,31 @@ def search(
         for chunk in chunks
     )
 
-    answer = generate_answer(
-        request.question,
-        context
-    )
+    try:
+        answer = generate_answer(
+            request.question,
+            context
+        )
+    except Exception as e:
+        traceback.print_exc()
+
+        # For example the free tier's daily request limit.
+        if isinstance(e, genai_errors.APIError) and e.code == 429:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=AI_LIMIT_REACHED
+            )
+
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=AI_UNAVAILABLE
+        )
+
+    if not isinstance(answer, str) or not answer.strip():
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=AI_EMPTY_ANSWER
+        )
 
     return {
         "question": request.question,
